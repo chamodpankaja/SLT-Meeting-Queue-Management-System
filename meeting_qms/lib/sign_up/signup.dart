@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:meeting_qms/widgets/TextFields/passwordField.dart';
+import 'package:meeting_qms/widgets/TextFields/textField.dart';
+import 'package:meeting_qms/widgets/popupMsgs/snackBar.dart';
+
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
 
@@ -10,8 +14,7 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  
-   final _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -20,8 +23,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   bool _isPasswordHidden = true;
   bool _isLoading = false;
-
-
 
   Future<void> _signup() async {
     if (_formKey.currentState!.validate()) {
@@ -49,12 +50,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           'role': 'user', // Default role, modify as needed
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Signup successful'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        PopupSnackBar.showSuccessMessage(context, 'Signup successful');
 
         _nameController.clear();
         _emailController.clear();
@@ -66,12 +62,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
             context, '/home'); // Change this to your desired route
       } on FirebaseAuthException catch (e) {
         // Handle errors
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.message ?? 'Signup failed'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        PopupSnackBar.showUnsuccessMessage(
+            context, e.message ?? 'Signup failed');
+        //
       } finally {
         setState(() {
           _isLoading = false;
@@ -80,7 +73,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     }
   }
 
-   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor:
@@ -95,31 +88,25 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
               // Top Logo
               ClipRRect(
-                
                 child: Image.asset(
                   'assets/slt_logo/sltLogo.png',
-                  width:200,
+                  width: 200,
                   height: 200,
-
                 ),
               ),
 
-              
-             
               const Text(
-                    'SLT Meeting QMS',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xff1A5EBF),
-                      letterSpacing: 1.5,
-                    ),
-                  ),
+                'SLT Meeting QMS',
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xff1A5EBF),
+                  letterSpacing: 1.5,
+                ),
+              ),
 
               // Header Text
               const Padding(
-
-               
                 padding: EdgeInsets.symmetric(horizontal: 20),
                 child: Text(
                   "Register",
@@ -137,85 +124,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
               // name input
 
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: TextFormField(
-                  controller: _nameController,
-                  validator: _validateName,
-                  decoration: InputDecoration(
-                    hintText: "Your Name",
-                    hintStyle: const TextStyle(
-                      color: Colors.black87,
-                      fontSize: 18,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 18),
-                    filled: true,
-                    fillColor:
-                        Colors.white12, // Keeps the semi-transparent background
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                          color: Colors.black87, width: 1.5), // Default border
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                          color: Colors.black87,
-                          width: 1.5), // Unfocused border
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                          color: Color(0xFF1A5EBF),
-                          width: 2.0), // Focused border color
-                    ),
-                  ),
-                  style: const TextStyle(
-                      color: Color(0xFF1A5EBF)), // Text color when typing
-                  cursorColor: Color(0xFF1A5EBF), // Cursor color when typing
-                ),
-              ),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: buildTextField(
+                      "your name", _nameController, _validateName)),
 
               const SizedBox(height: 20),
 
               // Email Input Field
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: TextFormField(
-                  controller: _emailController,
-                  validator: _validateEmail,
-                  decoration: InputDecoration(
-                    hintText: "Email",
-                    hintStyle: const TextStyle(
-                      color: Colors.black87,
-                      fontSize: 18,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 18),
-                    filled: true,
-                    fillColor:
-                        Colors.white12, // Keeps the semi-transparent background
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                          color: Colors.black87, width: 1.5), // Default border
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                          color: Colors.black87,
-                          width: 1.5), // Unfocused border
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                          color: Color(0xFF1A5EBF),
-                          width: 2.0), // Focused border color
-                    ),
-                  ),
-                  style: const TextStyle(
-                      color: Color(0xFF1A5EBF)), // Text color when typing
-                  cursorColor: Color(0xFF1A5EBF), // Cursor color when typing
+                child: buildTextField(
+                  "Email",
+                  _emailController,
+                  _validateEmail,
                 ),
               ),
 
@@ -224,52 +145,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
               // Password Input Field
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: TextFormField(
-                  controller: _passwordController,
-                  validator: _validatePassword,
-                  obscureText: _isPasswordHidden,
-                  decoration: InputDecoration(
-                    hintText: "Create a Password",
-                    hintStyle: const TextStyle(
-                      color: Colors.black87,
-                      fontSize: 18,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 18),
-                    filled: true,
-                    fillColor: Colors.white12,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide:
-                          const BorderSide(color: Colors.black87, width: 1.5),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide:
-                          const BorderSide(color: Colors.black87, width: 1.5),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                          color: Color(0xFF1A5EBF), width: 2.0),
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _isPasswordHidden
-                            ? Icons.visibility_off
-                            : Icons.visibility,
-                        color: Color(0xFF1A5EBF),
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _isPasswordHidden = !_isPasswordHidden;
-                        });
-                      },
-                    ),
-                  ),
-                  style: const TextStyle(color: Color(0xFF1A5EBF)),
-                  cursorColor:
-                      Color(0xFF1A5EBF), // Changed cursor color to match focus
+                child: buildPasswordField(
+                  "Create a Password",
+                  _passwordController,
+                  _validatePassword,
+                  _isPasswordHidden,
+                  (bool newValue) {
+                    setState(() {
+                      _isPasswordHidden = newValue;
+                    });
+                  },
                 ),
               ),
 
@@ -278,62 +163,25 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
               // Password Input Field
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: TextFormField(
-                  controller: _confirmPasswordController,
-                  validator: _validateConfirmPassword,
-                  obscureText: _isPasswordHidden,
-                  decoration: InputDecoration(
-                    hintText: "Confirm Password",
-                    hintStyle: const TextStyle(
-                      color: Colors.black87,
-                      fontSize: 18,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 18),
-                    filled: true,
-                    fillColor: Colors.white12,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide:
-                          const BorderSide(color: Colors.black87, width: 1.5),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide:
-                          const BorderSide(color: Colors.black87, width: 1.5),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                          color: Color(0xFF1A5EBF), width: 2.0),
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _isPasswordHidden
-                            ? Icons.visibility_off
-                            : Icons.visibility,
-                        color: Color(0xff1A5EBF),
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _isPasswordHidden = !_isPasswordHidden;
-                        });
-                      },
-                    ),
-                  ),
-                  style: const TextStyle(color: Color(0xFF1A5EBF)),
-                  cursorColor:
-                      Color(0xff1A5EBF), // Changed cursor color to match focus
-                ),
-              ),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: buildPasswordField(
+                    "Confirm Password",
+                    _confirmPasswordController,
+                    _validateConfirmPassword,
+                    _isPasswordHidden,
+                    (bool newValue) {
+                      setState(() {
+                        _isPasswordHidden = newValue;
+                      });
+                    },
+                  )),
 
               const SizedBox(height: 30),
 
               _isLoading
                   ? const CircularProgressIndicator(
                       valueColor: AlwaysStoppedAnimation<Color>(
-                         Color(0xff1A5EBF)), // Change color
+                          Color(0xff1A5EBF)), // Change color
                     )
                   :
 

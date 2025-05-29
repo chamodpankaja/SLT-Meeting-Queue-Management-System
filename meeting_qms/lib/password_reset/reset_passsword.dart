@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:meeting_qms/widgets/TextFields/textField.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:meeting_qms/widgets/popupMsgs/snackBar.dart';
+
 
 class ResetPasssword extends StatefulWidget {
   const ResetPasssword({super.key});
@@ -11,6 +15,32 @@ class _ResetPassswordState extends State<ResetPasssword> {
 
   final _formKey = GlobalKey<FormState>(); // key for  form validation
   final TextEditingController _emailController = TextEditingController();
+
+
+  Future<void> _Reset() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      try {
+        await FirebaseAuth.instance.sendPasswordResetEmail(email: _emailController.text);
+        
+       PopupSnackBar.showSuccessMessage(context, 'Password Reset Email Sent');
+        _emailController.clear();
+        await Future.delayed(const Duration(milliseconds: 1000));
+
+        Navigator.pushReplacementNamed(context, '/signin');
+      } catch (e) {
+        PopupSnackBar.showUnsuccessMessage(context, 'Failed to send password reset email');
+        print('Password reset error: ${e.toString()}');
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   
   bool _isLoading = false;
@@ -69,58 +99,12 @@ class _ResetPassswordState extends State<ResetPasssword> {
               // Email Input Field
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: TextFormField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                    hintText: "Email",
-                    hintStyle: const TextStyle(
-                      color: Colors.black87,
-                      fontSize: 18,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 18),
-                    filled: true,
-                    fillColor:
-                        Colors.white12, // Keeps the semi-transparent background
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                          color: Colors.black87, width: 1.5), // Default border
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                          color: Colors.black87,
-                          width: 1.5), // Unfocused border
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                          color:  Color(0xFF1A5EBF),
-                          width: 2.0), // Focused border color
-                    ),
-                  ),
-                  style: const TextStyle(
-                      color:Color(0xFF1A5EBF)), // Text color when typing
-                  cursorColor: Color(0xFF1A5EBF), // Cursor color when typing
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    if (!RegExp(
-                            r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$')
-                        .hasMatch(value)) {
-                      return "Enter a valid email";
-                    }
-                    return null;
-                  },
-                ),
+                child: buildTextField("Email", _emailController, _validateEmail)
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 40),
 
-              const SizedBox(height: 20),
+              
 
               _isLoading
                   ? const CircularProgressIndicator(
@@ -139,7 +123,7 @@ class _ResetPassswordState extends State<ResetPasssword> {
                       ),
                       child: TextButton(
                         onPressed: () {
-                          //_Reset();
+                          _Reset();
                         },
                         child: const Text(
                           'Send Email',
@@ -158,5 +142,16 @@ class _ResetPassswordState extends State<ResetPasssword> {
         ),
       ),
     );
+  }
+
+  String? _validateEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Email cannot be empty';
+    }
+    if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$')
+        .hasMatch(value)) {
+      return 'Enter a valid email address';
+    }
+    return null;
   }
 }

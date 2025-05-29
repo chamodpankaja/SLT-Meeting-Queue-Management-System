@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:meeting_qms/widgets/TextFields/passwordField.dart';
+import 'package:meeting_qms/widgets/TextFields/textField.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:meeting_qms/widgets/popupMsgs/snackBar.dart';
 
 class SignIn extends StatefulWidget {
   const SignIn({super.key});
@@ -9,7 +13,6 @@ class SignIn extends StatefulWidget {
 }
 
 class _SignInState extends State<SignIn> {
-
   final _formKey = GlobalKey<FormState>(); // key for  form validation
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -17,7 +20,33 @@ class _SignInState extends State<SignIn> {
   bool _isPasswordHidden = true;
   bool _isLoading = false;
 
+  Future<void> _signIn() async {
+    if (_formKey.currentState!.validate()) {
+       setState(() {
+        _isLoading = true;
+      });
 
+      try {
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+        );
+       PopupSnackBar.showSuccessMessage(context, 'Login successful');
+        _emailController.clear();
+        _passwordController.clear();
+        // Navigate to home screen or dashboard after successful login
+        Navigator.pushReplacementNamed(context,'/home');
+
+      } catch (e) {
+        PopupSnackBar.showUnsuccessMessage(context, 'Login failed: email or password is incorrect');
+        print('Login error: ${e.toString()}');
+      }finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,25 +63,22 @@ class _SignInState extends State<SignIn> {
 
               // Top Logo
               ClipRRect(
-               
                 child: Image.asset(
-                 'assets/slt_logo/sltLogo.png',
+                  'assets/slt_logo/sltLogo.png',
                   width: 200,
                   height: 200,
-                 
                 ),
               ),
 
               const Text(
-                    'SLT Meeting QMS',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xff1A5EBF),
-                      letterSpacing: 1.5,
-                    ),
-                  ),
-
+                'SLT Meeting QMS',
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xff1A5EBF),
+                  letterSpacing: 1.5,
+                ),
+              ),
 
               // Header Text
               const Padding(
@@ -62,11 +88,10 @@ class _SignInState extends State<SignIn> {
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color:Colors.black87,
+                    color: Colors.black87,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                
               ),
 
               const SizedBox(height: 40),
@@ -74,51 +99,10 @@ class _SignInState extends State<SignIn> {
               // Email Input Field
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: TextFormField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                    hintText: "Email",
-                    hintStyle: const TextStyle(
-                      color: Colors.black87,
-                      fontSize: 18,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 18),
-                    filled: true,
-                    fillColor:
-                        Colors.white12, // Keeps the semi-transparent background
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                          color: Colors.black87, width: 1.5), // Default border
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                          color: Colors.black87,
-                          width: 1.5), // Unfocused border
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                          color:  Color(0xFF1A5EBF),
-                          width: 2.0), // Focused border color
-                    ),
-                  ),
-                  style: const TextStyle(
-                      color:  Color(0xFF1A5EBF)), // Text color when typing
-                  cursorColor:  Color(0xFF1A5EBF), // Cursor color when typing
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$').hasMatch(value)) {
-                      return "Enter a valid email";
-                    }
-                    return null;
-
-                  },
+                child: buildTextField(
+                  "Email",
+                  _emailController,
+                  _validateEmail,
                 ),
               ),
 
@@ -126,64 +110,18 @@ class _SignInState extends State<SignIn> {
 
               // Password Input Field
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: TextFormField(
-                  controller: _passwordController,
-                  obscureText: _isPasswordHidden,
-                  decoration: InputDecoration(
-                    hintText: "Password",
-                    hintStyle: const TextStyle(
-                      color: Colors.black87,
-                      fontSize: 18,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 18),
-                    filled: true,
-                    fillColor: Colors.white12,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide:
-                          const BorderSide(color: Colors.black87, width: 1.5),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide:
-                          const BorderSide(color: Colors.black87, width: 1.5),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                          color:  Color(0xFF1A5EBF), width: 2.0),
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _isPasswordHidden
-                            ? Icons.visibility_off
-                            : Icons.visibility,
-                        color: const  Color(0xFF1A5EBF),
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _isPasswordHidden = !_isPasswordHidden;
-                        });
-                      },
-                    ),
-                  ),
-                  style: const TextStyle(color:  Color(0xFF1A5EBF)),
-                  cursorColor:
-                       Color(0xFF1A5EBF), // Changed cursor color to match focus
-                  //keyboardType: TextInputType.visiblePassword,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
-                    }
-                    if (value.length < 6) {
-                      return "Password must be at least 6 characters";
-                    }
-                    return null;
-                  },
-                ),
-              ),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: buildPasswordField(
+                    "Password",
+                    _passwordController,
+                    _validatePassword,
+                    _isPasswordHidden,
+                    (bool newValue) {
+                      setState(() {
+                        _isPasswordHidden = newValue;
+                      });
+                    },
+                  )),
               const SizedBox(height: 10),
 
               Align(
@@ -197,7 +135,7 @@ class _SignInState extends State<SignIn> {
                     child: const Text(
                       'Forgot Password?',
                       style: TextStyle(
-                        color:  Color(0xFF1A5EBF),
+                        color: Color(0xFF1A5EBF),
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         decoration: TextDecoration.underline,
@@ -212,31 +150,32 @@ class _SignInState extends State<SignIn> {
               _isLoading
                   ? const CircularProgressIndicator(
                       valueColor: AlwaysStoppedAnimation<Color>(
-                           Color(0xFF1A5EBF)), // Change color
-                    ):
+                          Color(0xFF1A5EBF)), // Change color
+                    )
+                  :
 
-              // Continue Button
-              Container(
-                width: 300,
-                height: 60,
-                decoration: BoxDecoration(
-                  color:  Color(0xFF1A5EBF),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: TextButton(
-                  onPressed: () {
-                    //_signIn();
-                  },
-                  child: const Text(
-                    'Log in',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                  // Continue Button
+                  Container(
+                      width: 300,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        color: Color(0xFF1A5EBF),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: TextButton(
+                        onPressed: () {
+                          _signIn();
+                        },
+                        child: const Text(
+                          'Log in',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ),
 
               const SizedBox(height: 40),
 
@@ -252,7 +191,7 @@ class _SignInState extends State<SignIn> {
                     TextSpan(
                       text: "Sign up",
                       style: const TextStyle(
-                        color:  Color(0xFF1A5EBF),
+                        color: Color(0xFF1A5EBF),
                         fontWeight: FontWeight.bold,
                         decoration: TextDecoration.underline,
                       ),
@@ -272,5 +211,25 @@ class _SignInState extends State<SignIn> {
       ),
     );
   }
-  
+
+  String? _validateEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Email cannot be empty';
+    }
+    if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$')
+        .hasMatch(value)) {
+      return 'Enter a valid email address';
+    }
+    return null;
+  }
+
+  String? _validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Password cannot be empty';
+    }
+    if (value.length < 6) {
+      return 'Password should be at least 6 characters';
+    }
+    return null;
+  }
 }

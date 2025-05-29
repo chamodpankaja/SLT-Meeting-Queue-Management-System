@@ -10,7 +10,6 @@ import 'package:firebase_core/firebase_core.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
- 
   await Firebase.initializeApp();
   runApp(const MyApp());
 }
@@ -31,10 +30,8 @@ class MyApp extends StatelessWidget {
           '/': (context) => const SplashScreen(),
           "/signup": (context) => const SignUpScreen(),
           "/signin": (context) => const SignIn(),
-          "/reset" : (context) => const ResetPasssword(),
-          "/home": (context) =>const Home()
-         
-
+          "/reset": (context) => const ResetPasssword(),
+          "/home": (context) => const Home()
         });
   }
 }
