@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "550533539807",
+    "project_id": "slt-meeting-qms",
+    "storage_bucket": "slt-meeting-qms.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:550533539807:android:8533164d01e57bc967066a",
+        "android_client_info": {
+          "package_name": "com.example.meeting_qms"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDmbRTnTf_nKpw84EzB4Lusmmjj8nXYSvs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

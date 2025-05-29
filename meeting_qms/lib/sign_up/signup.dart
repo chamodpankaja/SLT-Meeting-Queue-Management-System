@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
 
@@ -19,6 +20,65 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   bool _isPasswordHidden = true;
   bool _isLoading = false;
+
+
+
+  Future<void> _signup() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      try {
+        // Create user with email and password
+        UserCredential userCredential =
+            await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: _emailController.text,
+          password: _passwordController.text,
+        );
+
+        // Save user information to Firestore
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userCredential.user?.uid)
+            .set({
+          'uid': userCredential.user?.uid,
+          'name': _nameController.text,
+          'email': _emailController.text,
+          'createdAt': Timestamp.now(), // Store creation date
+          'role': 'user', // Default role, modify as needed
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Signup successful'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        _nameController.clear();
+        _emailController.clear();
+        _passwordController.clear();
+        _confirmPasswordController.clear();
+
+        // Navigate to the next screen after successful signup
+        Navigator.pushReplacementNamed(
+            context, '/home'); // Change this to your desired route
+      } on FirebaseAuthException catch (e) {
+        // Handle errors
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message ?? 'Signup failed'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
    @override
   Widget build(BuildContext context) {
@@ -287,7 +347,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                       child: TextButton(
                         onPressed: () {
-                         // _signup();
+                          _signup();
                         },
                         child: const Text(
                           'Sign up',
