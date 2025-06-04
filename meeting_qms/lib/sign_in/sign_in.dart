@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:meeting_qms/admin/adminHome.dart';
 import 'package:meeting_qms/widgets/TextFields/passwordField.dart';
 import 'package:meeting_qms/widgets/TextFields/textField.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:meeting_qms/widgets/popupMsgs/snackBar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SignIn extends StatefulWidget {
   const SignIn({super.key});
@@ -22,25 +24,43 @@ class _SignInState extends State<SignIn> {
 
   Future<void> _signIn() async {
     if (_formKey.currentState!.validate()) {
-       setState(() {
+      setState(() {
         _isLoading = true;
       });
 
       try {
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
-        );
-       PopupSnackBar.showSuccessMessage(context, 'Login successful');
-        _emailController.clear();
-        _passwordController.clear();
-        // Navigate to home screen or dashboard after successful login
-        Navigator.pushReplacementNamed(context,'/home');
+        UserCredential userCredential = await FirebaseAuth.instance
+            .signInWithEmailAndPassword(
+                email: _emailController.text.trim(),
+                password: _passwordController.text.trim());
 
+        final user = userCredential.user;
+
+        if (user != null) {
+          DocumentSnapshot userDoc = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user.uid)
+              .get();
+
+          final userData = userDoc.data() as Map<String, dynamic>;
+          final role = userData['role'];
+
+          PopupSnackBar.showSuccessMessage(context, 'Login successful');
+          _emailController.clear();
+          _passwordController.clear();
+
+          if (role == 'admin') {
+            Navigator.pushReplacement(
+                context, MaterialPageRoute(builder: (context) => Adminhome()));
+          } else {
+            Navigator.pushReplacementNamed(context, '/home');
+          }
+        }
       } catch (e) {
-        PopupSnackBar.showUnsuccessMessage(context, 'Login failed: email or password is incorrect');
+        PopupSnackBar.showUnsuccessMessage(
+            context, 'Login failed: email or password is incorrect');
         print('Login error: ${e.toString()}');
-      }finally {
+      } finally {
         setState(() {
           _isLoading = false;
         });

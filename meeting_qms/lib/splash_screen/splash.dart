@@ -1,4 +1,10 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:meeting_qms/admin/adminHome.dart';
+import 'package:meeting_qms/user/home.dart';
+import 'package:meeting_qms/widgets/popupMsgs/snackBar.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -7,7 +13,8 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -39,12 +46,40 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     super.dispose();
   }
 
-  void _navigateToHome() {
+  void _navigateToHome() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        final doc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
 
-    Future.delayed(const Duration(seconds: 3), () {
-      Navigator.pushReplacementNamed(context, '/signin');
-    });
+        final data = doc.data();
 
+        if (data != null && data.containsKey('role')) {
+          final role = data['role'];
+
+          if (!mounted) return;
+
+          if (role == 'admin') {
+            Navigator.pushReplacement(
+                context, MaterialPageRoute(builder: (context) => Adminhome()));
+          } else {
+            Navigator.pushReplacement(
+                context, MaterialPageRoute(builder: (context) => Home()));
+          }
+        } else {
+          Navigator.pushReplacementNamed(context, '/signin');
+        }
+      } catch (e) {
+        PopupSnackBar.showUnsuccessMessage(context, "Error fetching user role");
+      }
+    } else {
+      Future.delayed(const Duration(seconds: 3), () {
+        Navigator.pushReplacementNamed(context, '/signin');
+      });
+    }
   }
 
   @override
@@ -70,15 +105,13 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  
-              
-                     Image.asset(
-                      'assets/slt_logo/sltLogo.png',
-                      width: 250,
-                      height: 250,
-                    ),
-                  
-                 // const SizedBox(height: 10),
+                  Image.asset(
+                    'assets/slt_logo/sltLogo.png',
+                    width: 250,
+                    height: 250,
+                  ),
+
+                  // const SizedBox(height: 10),
                   // const Text(
                   //   'Welcome to',
                   //   style: TextStyle(
@@ -97,7 +130,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   //     letterSpacing: 1.5,
                   //   ),
                   // ),
-                 // const SizedBox(height: 20),
+                  // const SizedBox(height: 20),
                   // const CircularProgressIndicator(
                   //   valueColor: AlwaysStoppedAnimation<Color>(Color(0xff1A5EBF)),
                   // ),

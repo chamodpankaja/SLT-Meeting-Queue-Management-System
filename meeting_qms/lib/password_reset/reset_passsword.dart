@@ -24,6 +24,7 @@ class _ResetPassswordState extends State<ResetPasssword> {
       });
 
       try {
+
         await FirebaseAuth.instance.sendPasswordResetEmail(email: _emailController.text);
         
        PopupSnackBar.showSuccessMessage(context, 'Password Reset Email Sent');
@@ -32,9 +33,6 @@ class _ResetPassswordState extends State<ResetPasssword> {
 
         Navigator.pushReplacementNamed(context, '/signin');
       } catch (e) {
-        PopupSnackBar.showUnsuccessMessage(context, 'Failed to send password reset email');
-        print('Password reset error: ${e.toString()}');
-      } finally {
         setState(() {
           _isLoading = false;
         });

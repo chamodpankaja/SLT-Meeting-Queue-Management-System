@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:meeting_qms/home.dart';
+import 'package:meeting_qms/user/home.dart';
 import 'package:meeting_qms/password_reset/reset_passsword.dart';
 import 'package:meeting_qms/sign_in/sign_in.dart';
 import 'package:meeting_qms/sign_up/signup.dart';
