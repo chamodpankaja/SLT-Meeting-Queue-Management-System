@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:meeting_qms/sign_in/sign_in.dart';
 
 class Adminhome extends StatefulWidget {
@@ -10,15 +11,38 @@ class Adminhome extends StatefulWidget {
 }
 
 class _AdminhomeState extends State<Adminhome> {
+  String userName = "UserName";
+  final User? user = FirebaseAuth.instance.currentUser;
+  Future<void> fetchUserData() async {
+    if (user != null) {
+      var snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user!.uid)
+          .get();
+
+      if (snapshot.exists) {
+        setState(() {
+          String fullName = snapshot.data()?['name'] ?? "UserName";
+          userName = fullName.split(' ')[0];
+        });
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserData();
+  }
+
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
       backgroundColor: Colors.white,
-       appBar: AppBar(
+      appBar: AppBar(
         backgroundColor: Color(0xff1A5EBF),
-        //title: Text("Admin: " + FirebaseAuth.instance.currentUser?.name[0] ?? "Guest"),
-       // title: Text("Admin: ${FirebaseAuth.instance.currentUser?.displayName ?? "Guest"}"),
+        title: Text("Admin: ${userName} "),
+        // title: Text("Admin: ${FirebaseAuth.instance.currentUser?.displayName ?? "Guest"}"),
       ),
       body: Center(
         child: Column(

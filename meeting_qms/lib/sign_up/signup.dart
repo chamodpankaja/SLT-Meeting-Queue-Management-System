@@ -113,7 +113,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: Color(0xFF4FB846)
                   ),
                   textAlign: TextAlign.center,
                 ),

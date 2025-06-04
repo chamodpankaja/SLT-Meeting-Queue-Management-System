@@ -104,11 +104,11 @@ class _SignInState extends State<SignIn> {
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20),
                 child: Text(
-                  "Login",
+                  "Sign In",
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: Color(0xFF4FB846),
                   ),
                   textAlign: TextAlign.center,
                 ),
