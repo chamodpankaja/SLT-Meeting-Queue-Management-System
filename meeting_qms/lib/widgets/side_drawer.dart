@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:meeting_qms/sign_in/sign_in.dart';
 
-
 class SideMenu extends StatefulWidget {
   @override
   _SideMenuState createState() => _SideMenuState();
@@ -13,6 +12,7 @@ class _SideMenuState extends State<SideMenu> {
   final User? user = FirebaseAuth.instance.currentUser;
   String userName = "User";
   String userEmail = "Loading...";
+  String userRole = " ";
   //String profilePicUrl = "";
 
   @override
@@ -30,6 +30,7 @@ class _SideMenuState extends State<SideMenu> {
 
       if (snapshot.exists) {
         setState(() {
+          userRole = snapshot.data()?['role'] ?? ' ';
           userName = snapshot.data()?['name'] ?? 'User';
           userEmail = snapshot.data()?['email'] ?? 'No Email';
           //profilePicUrl = snapshot.data()?['profilePic'] ?? '';
@@ -54,24 +55,26 @@ class _SideMenuState extends State<SideMenu> {
         return AlertDialog(
           backgroundColor: Colors.blue.shade50,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16), 
+            borderRadius: BorderRadius.circular(16),
           ),
-          titlePadding: EdgeInsets.all(20), 
+          titlePadding: EdgeInsets.all(20),
           title: Center(
             child: Text(
               'Are you sure you want to sign out?',
-              style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
-              
             ),
           ),
-          contentPadding: EdgeInsets.zero, 
-          actionsPadding: EdgeInsets.zero, 
+          contentPadding: EdgeInsets.zero,
+          actionsPadding: EdgeInsets.zero,
           actions: [
             Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.vertical(
-                    bottom: Radius.circular(16)),
+                borderRadius:
+                    BorderRadius.vertical(bottom: Radius.circular(16)),
               ),
               child: Row(
                 children: [
@@ -79,17 +82,18 @@ class _SideMenuState extends State<SideMenu> {
                     child: TextButton(
                       onPressed: () => Navigator.of(context).pop(false),
                       style: TextButton.styleFrom(
-                        backgroundColor: Colors.grey.shade400, 
+                        backgroundColor: Colors.grey.shade400,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(16), 
+                            bottomLeft: Radius.circular(16),
                           ),
                         ),
                       ),
                       child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 5), 
+                        padding: EdgeInsets.symmetric(vertical: 5),
                         child: Text('No',
-                            style: TextStyle(color: Colors.white, fontSize: 16)),
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 16)),
                       ),
                     ),
                   ),
@@ -97,17 +101,18 @@ class _SideMenuState extends State<SideMenu> {
                     child: TextButton(
                       onPressed: () => Navigator.of(context).pop(true),
                       style: TextButton.styleFrom(
-                        backgroundColor:  Color(0xff1A5EBF),
+                        backgroundColor: Color(0xff1A5EBF),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.only(
-                            bottomRight: Radius.circular(16), 
+                            bottomRight: Radius.circular(16),
                           ),
                         ),
                       ),
                       child: Padding(
                         padding: EdgeInsets.symmetric(vertical: 5),
                         child: Text('Yes',
-                            style: TextStyle(color: Colors.white, fontSize: 16)),
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 16)),
                       ),
                     ),
                   ),
@@ -121,19 +126,21 @@ class _SideMenuState extends State<SideMenu> {
 
     if (shouldSignOut == true) {
       await FirebaseAuth.instance.signOut();
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SignIn()));
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => SignIn()));
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
       child: Container(
-        color: Colors.white, 
+        color: Colors.white,
         child: Column(
           children: [
             Container(
-              width: double.infinity, 
-              color: Colors.blue.shade50, 
+              width: double.infinity,
+              color: Colors.blue.shade50,
               padding: EdgeInsets.symmetric(vertical: 30),
               child: Column(
                 children: [
@@ -147,23 +154,35 @@ class _SideMenuState extends State<SideMenu> {
                     child: CircleAvatar(
                       radius: 40, // Avatar size
                       //backgroundImage: profilePicUrl.isNotEmpty
-                         // ? NetworkImage(profilePicUrl)
-                        //  : AssetImage('lib/assets/images/default_profile.jpg') as ImageProvider,
+                      // ? NetworkImage(profilePicUrl)
+                      //  : AssetImage('lib/assets/images/default_profile.jpg') as ImageProvider,
                     ),
                   ),
                   SizedBox(height: 10),
                   Text(
+                    userRole == "admin"
+                        ? "Welcome Admin"
+                        : userRole == "user"
+                            ? "Welcome User"
+                            : "Welcome",
+                    style: TextStyle(
+                      fontSize: 18,
+                      color:Colors.black87,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
                     userName,
                     style: TextStyle(
                       fontSize: 18,
-                      color:  Color(0xff1A5EBF),
+                      color: Color(0xff1A5EBF),
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 5),
                   Text(
                     userEmail,
-                    style: TextStyle(fontSize: 14, color:  Color(0xff1A5EBF)),
+                    style: TextStyle(fontSize: 14, color: Color(0xff1A5EBF)),
                   ),
                 ],
               ),
@@ -174,37 +193,41 @@ class _SideMenuState extends State<SideMenu> {
                 children: [
                   ListTile(
                     leading: Icon(Icons.home, color: Color(0xff1A5EBF)),
-                    title: Text("Home", style: TextStyle(color: Colors.black87)),
+                    title:
+                        Text("Home", style: TextStyle(color: Colors.black87)),
                     onTap: () {
-                       Navigator.pop(context);
+                      Navigator.pop(context);
                     },
                   ),
                   ListTile(
                     leading: Icon(Icons.bookmark, color: Color(0xff1A5EBF)),
-                    title: Text("Favourites", style: TextStyle(color: Color(0xff1A5EBF))),
+                    title: Text("Favourites",
+                        style: TextStyle(color: Color(0xff1A5EBF))),
                     onTap: () {
                       //navigateToPage(1);
-                     // Navigator.push(context, MaterialPageRoute(builder: (context) => FavouritesScreen()));
+                      // Navigator.push(context, MaterialPageRoute(builder: (context) => FavouritesScreen()));
                     },
                   ),
                   ListTile(
                     leading: Icon(Icons.cloud, color: Color(0xFF0B5739)),
-                    title: Text("Weather", style: TextStyle(color: Color(0xFF0B5739))),
+                    title: Text("Weather",
+                        style: TextStyle(color: Color(0xFF0B5739))),
                     onTap: () {
                       //Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
                     },
                   ),
                   ListTile(
                     leading: Icon(Icons.map, color: Color(0xFF0B5739)),
-                    title: Text("Map", style: TextStyle(color: Color(0xFF0B5739))),
+                    title:
+                        Text("Map", style: TextStyle(color: Color(0xFF0B5739))),
                     onTap: () {
-                     // Navigator.push(context, MaterialPageRoute(builder: (context) => MapPage()));
+                      // Navigator.push(context, MaterialPageRoute(builder: (context) => MapPage()));
                     },
                   ),
-                  
                   ListTile(
                     leading: Icon(Icons.settings, color: Color(0xFF0B5739)),
-                    title: Text("Settings", style: TextStyle(color: Color(0xFF0B5739))),
+                    title: Text("Settings",
+                        style: TextStyle(color: Color(0xFF0B5739))),
                     onTap: () {
                       //navigateToPage(4);
                     },
@@ -212,7 +235,8 @@ class _SideMenuState extends State<SideMenu> {
                   Divider(color: Colors.black12),
                   ListTile(
                     leading: Icon(Icons.logout, color: Colors.redAccent),
-                    title: Text("Logout", style: TextStyle(color: Colors.redAccent)),
+                    title: Text("Logout",
+                        style: TextStyle(color: Colors.redAccent)),
                     onTap: () async {
                       await _confirmSignOut(context);
                     },

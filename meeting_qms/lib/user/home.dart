@@ -21,7 +21,6 @@ class _HomeState extends State<Home> {
     "assets/image2.jpg",
     "assets/image3.png",
     "assets/image4.jpeg",
-    "assets/image5.png",
   ];
 
   bool _isLoading = true;
@@ -129,7 +128,7 @@ class _HomeState extends State<Home> {
         ),
         
       ),
-      endDrawer: SideMenu(),
+      drawer: SideMenu(),
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.symmetric(
