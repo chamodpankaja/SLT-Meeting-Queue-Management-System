@@ -12,8 +12,7 @@ class _SideMenuState extends State<SideMenu> {
   final User? user = FirebaseAuth.instance.currentUser;
   String userName = "User";
   String userEmail = "Loading...";
-  String userRole = " ";
-  //String profilePicUrl = "";
+  String userRole = "";
 
   @override
   void initState() {
@@ -30,23 +29,13 @@ class _SideMenuState extends State<SideMenu> {
 
       if (snapshot.exists) {
         setState(() {
-          userRole = snapshot.data()?['role'] ?? ' ';
+          userRole = snapshot.data()?['role']?.toString().trim() ?? '';
           userName = snapshot.data()?['name'] ?? 'User';
           userEmail = snapshot.data()?['email'] ?? 'No Email';
-          //profilePicUrl = snapshot.data()?['profilePic'] ?? '';
         });
       }
     }
   }
-
-  // void navigateToPage(int index) {
-  //   Navigator.pushReplacement(
-  //     context,
-  //     MaterialPageRoute(
-  //       builder: (context) => MainScreen(selectedIndex: index),
-  //     ),
-  //   );
-  // }
 
   Future<void> _confirmSignOut(BuildContext context) async {
     final bool? shouldSignOut = await showDialog<bool>(
@@ -144,30 +133,17 @@ class _SideMenuState extends State<SideMenu> {
               padding: EdgeInsets.symmetric(vertical: 30),
               child: Column(
                 children: [
-                  GestureDetector(
-                    onTap: () {
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(builder: (context) => ProfilePage()),
-                      // );
-                    },
-                    child: CircleAvatar(
-                      radius: 40, // Avatar size
-                      //backgroundImage: profilePicUrl.isNotEmpty
-                      // ? NetworkImage(profilePicUrl)
-                      //  : AssetImage('lib/assets/images/default_profile.jpg') as ImageProvider,
-                    ),
+                  CircleAvatar(
+                    radius: 40,
+                    backgroundColor: Colors.blueGrey.shade100,
+                    child: Icon(Icons.person, size: 40, color: Colors.blue),
                   ),
                   SizedBox(height: 10),
                   Text(
-                    userRole == "admin"
-                        ? "Welcome Admin"
-                        : userRole == "user"
-                            ? "Welcome User"
-                            : "Welcome",
+                    "Welcome",
                     style: TextStyle(
                       fontSize: 18,
-                      color:Colors.black87,
+                      color: Color(0xff1A5EBF),
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -184,54 +160,76 @@ class _SideMenuState extends State<SideMenu> {
                     userEmail,
                     style: TextStyle(fontSize: 14, color: Color(0xff1A5EBF)),
                   ),
+                  if (userRole.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: userRole.toLowerCase() == "admin"
+                              ? Colors.red.shade100
+                              : Colors.green.shade100,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          userRole,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: userRole.toLowerCase() == "admin"
+                                ? Colors.red
+                                : Colors.green,
+                          ),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
-            // Navigation Items
             Expanded(
               child: ListView(
                 children: [
-                  ListTile(
-                    leading: Icon(Icons.home, color: Color(0xff1A5EBF)),
-                    title:
-                        Text("Home", style: TextStyle(color: Colors.black87)),
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.bookmark, color: Color(0xff1A5EBF)),
-                    title: Text("Favourites",
-                        style: TextStyle(color: Color(0xff1A5EBF))),
-                    onTap: () {
-                      //navigateToPage(1);
-                      // Navigator.push(context, MaterialPageRoute(builder: (context) => FavouritesScreen()));
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.cloud, color: Color(0xFF0B5739)),
-                    title: Text("Weather",
-                        style: TextStyle(color: Color(0xFF0B5739))),
-                    onTap: () {
-                      //Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.map, color: Color(0xFF0B5739)),
-                    title:
-                        Text("Map", style: TextStyle(color: Color(0xFF0B5739))),
-                    onTap: () {
-                      // Navigator.push(context, MaterialPageRoute(builder: (context) => MapPage()));
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.settings, color: Color(0xFF0B5739)),
-                    title: Text("Settings",
-                        style: TextStyle(color: Color(0xFF0B5739))),
-                    onTap: () {
-                      //navigateToPage(4);
-                    },
-                  ),
+                  // ListTile(
+                  //   leading: Icon(Icons.home, color: Color(0xff1A5EBF)),
+                  //   title:
+                  //       Text("Home", style: TextStyle(color: Colors.black87)),
+                  //   onTap: () {
+                  //     Navigator.pop(context);
+                  //   },
+                  // ),
+                  // ListTile(
+                  //   leading: Icon(Icons.bookmark, color: Color(0xff1A5EBF)),
+                  //   title: Text("Favourites",
+                  //       style: TextStyle(color: Color(0xff1A5EBF))),
+                  //   onTap: () {
+                  //     // Navigator.push(context, MaterialPageRoute(builder: (context) => FavouritesScreen()));
+                  //   },
+                  // ),
+                  // ListTile(
+                  //   leading: Icon(Icons.cloud, color: Color(0xFF0B5739)),
+                  //   title: Text("Weather",
+                  //       style: TextStyle(color: Color(0xFF0B5739))),
+                  //   onTap: () {
+                  //     // Navigator.push(context, MaterialPageRoute(builder: (context) => WeatherPage()));
+                  //   },
+                  // ),
+                  // ListTile(
+                  //   leading: Icon(Icons.map, color: Color(0xFF0B5739)),
+                  //   title:
+                  //       Text("Map", style: TextStyle(color: Color(0xFF0B5739))),
+                  //   onTap: () {
+                  //     // Navigator.push(context, MaterialPageRoute(builder: (context) => MapPage()));
+                  //   },
+                  // ),
+                  // ListTile(
+                  //   leading: Icon(Icons.settings, color: Color(0xFF0B5739)),
+                  //   title: Text("Settings",
+                  //       style: TextStyle(color: Color(0xFF0B5739))),
+                  //   onTap: () {
+                  //     // Navigate to settings
+                  //   },
+                  // ),
                   Divider(color: Colors.black12),
                   ListTile(
                     leading: Icon(Icons.logout, color: Colors.redAccent),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meeting_qms/service/notification_service.dart';
 import 'package:meeting_qms/user/home.dart';
 import 'package:meeting_qms/password_reset/reset_passsword.dart';
 import 'package:meeting_qms/sign_in/sign_in.dart';
@@ -11,6 +12,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService.instance.initialize();
   await Firebase.initializeApp();
   runApp(const MyApp());
 }

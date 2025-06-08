@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:meeting_qms/admin/adminHome.dart';
+import 'package:meeting_qms/admin/admin_main_screen.dart';
 import 'package:meeting_qms/user/home.dart';
 import 'package:meeting_qms/widgets/popupMsgs/snackBar.dart';
 
@@ -64,7 +65,7 @@ class _SplashScreenState extends State<SplashScreen>
 
           if (role == 'admin') {
             Navigator.pushReplacement(
-                context, MaterialPageRoute(builder: (context) => Adminhome()));
+                context, MaterialPageRoute(builder: (context) => AdminMainScreen()));
           } else {
             Navigator.pushReplacement(
                 context, MaterialPageRoute(builder: (context) => Home()));
