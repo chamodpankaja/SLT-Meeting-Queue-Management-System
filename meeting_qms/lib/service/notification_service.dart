@@ -12,7 +12,7 @@ class NotificationService {
 
   Future<void> initialize() async {
     try {
-      const androidInitialize = AndroidInitializationSettings('@drawable/app_icon.png');
+      const androidInitialize = AndroidInitializationSettings('@drawable/app_icon');
       const iOSInitialize = DarwinInitializationSettings(
         requestAlertPermission: true,
         requestBadgePermission: true,

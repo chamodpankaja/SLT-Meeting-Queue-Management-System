@@ -1,6 +1,6 @@
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 Widget buildSessionCard(DocumentSnapshot session) {
   
@@ -12,7 +12,7 @@ Widget buildSessionCard(DocumentSnapshot session) {
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(12),
       side: BorderSide(
-        color: Colors.blue.shade50,
+        color: Colors.black87,
         width: 1,
       ),
     ),
@@ -37,21 +37,13 @@ Widget buildSessionCard(DocumentSnapshot session) {
                 ),
               ),
                  Text(
-                data['date'] ?? '',
-                style: TextStyle(
-                  color: Colors.grey.shade600,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(width: 8),
-           
-               Text(
-                data['time'] ?? '',
-                style: TextStyle(
-                  color: Colors.grey.shade600,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
+                   DateFormat('MMMM d, yyyy  h:mm a').format(data['createdAt'].toDate().toLocal()),
+                   style: TextStyle(
+                     color: Colors.grey.shade600,
+                     fontWeight: FontWeight.w500,
+                   ),
+                 ),
+             
             ],
           ),
           const SizedBox(height: 8),

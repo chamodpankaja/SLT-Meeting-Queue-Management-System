@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
         ),
         debugShowCheckedModeBanner: false,
-        title: 'Movie Finder',
+        title: 'SLT QMS',
         initialRoute: '/',
         routes: {
           '/': (context) => const SplashScreen(),

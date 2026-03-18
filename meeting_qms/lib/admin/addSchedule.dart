@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:meeting_qms/admin/admin_main_screen.dart';
 import 'package:intl/intl.dart';
+import 'package:meeting_qms/service/notification_service.dart';
 import 'package:meeting_qms/widgets/TextFields/textField.dart';
 import 'package:meeting_qms/widgets/popupMsgs/snackBar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -171,74 +172,81 @@ class _AddscheduleState extends State<Addschedule> {
   }
 
   void _submitForm() async {
-  try {
-    if (_formKey.currentState!.validate() && _selectedTechStacks.isNotEmpty) {
-      User? user = FirebaseAuth.instance.currentUser;
-      
-      if (user == null) {
-        PopupSnackBar.showUnsuccessMessage(context, 'User not authenticated');
-        return;
-      }
+    try {
+      if (_formKey.currentState!.validate() && _selectedTechStacks.isNotEmpty) {
+        User? user = FirebaseAuth.instance.currentUser;
 
-      // Get user data
-      var snapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
+        if (user == null) {
+          PopupSnackBar.showUnsuccessMessage(context, 'User not authenticated');
+          return;
+        }
 
-      // Prepare schedule data
-      final scheduleData = {
-        'userId': user.uid,
-        'sessionName': _sessionNameController.text.trim(),
-        'date': _dateController.text,
-        'time': _timeController.text,
-        'venue': _venueController.text.trim(),
-        'notes': _notesController.text.trim(),
-        'techStacks': _selectedTechStacks,
-        'createdBy': "Mr. ${snapshot.data()?['name'].split(' ')[0] ?? 'User'}",
-        'createdAt': FieldValue.serverTimestamp(),
-        
-      };
+        // Get user data
+        var snapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
 
-      // Add to Firestore
-      await FirebaseFirestore.instance
-          .collection('schedules')
-          .add(scheduleData);
+        // Prepare schedule data
+        final scheduleData = {
+          'userId': user.uid,
+          'sessionName': _sessionNameController.text.trim(),
+          'date': _dateController.text,
+          'time': _timeController.text,
+          'venue': _venueController.text.trim(),
+          'notes': _notesController.text.trim(),
+          'techStacks': _selectedTechStacks,
+          'createdBy':
+              "Mr. ${snapshot.data()?['name'].split(' ')[0] ?? 'User'}",
+          'createdAt': FieldValue.serverTimestamp(),
+        };
 
-      // Clear form
-      _clearForm();
-      
-      // Show success message
-      if (mounted) {
-        PopupSnackBar.showSuccessMessage(context, 'Schedule added successfully');
-        // Navigate back to admin home
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) =>  AdminMainScreen()),
+        // Add to Firestore
+        await FirebaseFirestore.instance
+            .collection('schedules')
+            .add(scheduleData);
+
+        await NotificationService.instance.showNotification(
+          title: 'New Schedule Added',
+          body:
+              'Session: ${_sessionNameController.text.trim()} on ${_dateController.text} at ${_timeController.text}',
         );
+
+        // Clear form
+        _clearForm();
+
+        // Show success message
+        if (mounted) {
+          PopupSnackBar.showSuccessMessage(
+              context, 'Schedule added successfully');
+          // Navigate back to admin home
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => AdminMainScreen()),
+          );
+        }
+      } else if (_selectedTechStacks.isEmpty) {
+        PopupSnackBar.showUnsuccessMessage(
+            context, 'Please select at least one tech stack');
       }
-    } else if (_selectedTechStacks.isEmpty) {
+    } catch (e) {
       PopupSnackBar.showUnsuccessMessage(
-          context, 'Please select at least one tech stack');
+          context, 'Failed to add schedule. Please try again.');
+      print('Error adding schedule: $e');
     }
-  } catch (e) {
-    PopupSnackBar.showUnsuccessMessage(
-        context, 'Failed to add schedule. Please try again.');
-    print('Error adding schedule: $e');
   }
-}
 
 // Helper method to clear form
-void _clearForm() {
-  _sessionNameController.clear();
-  _dateController.clear();
-  _timeController.clear();
-  _venueController.clear();
-  _notesController.clear();
-  setState(() {
-    _selectedTechStacks.clear();
-  });
-}
+  void _clearForm() {
+    _sessionNameController.clear();
+    _dateController.clear();
+    _timeController.clear();
+    _venueController.clear();
+    _notesController.clear();
+    setState(() {
+      _selectedTechStacks.clear();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
